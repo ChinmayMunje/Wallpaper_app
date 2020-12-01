@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:music/CategoryScreen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:music/Model/Photo_Model.dart';
 
 
@@ -10,6 +9,7 @@ import 'package:music/Model/Photo_Model.dart';
 
 class Search_View extends StatefulWidget {
   final String search;
+
 
   Search_View({this.search});
   @override
@@ -20,6 +20,7 @@ class _Search_ViewState extends State<Search_View> {
 
   List<PhotoModel> photos = new List();
   TextEditingController searchController = new TextEditingController();
+
 
 
   getSearchWallpaper(String searchQuery) async{
@@ -37,42 +38,69 @@ class _Search_ViewState extends State<Search_View> {
     });
   }
   @override
+  void initState() {
+    getSearchWallpaper(widget.search);
+    searchController.text = widget.search;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white70,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            margin: EdgeInsets.symmetric(horizontal: 24),
-            padding: EdgeInsets.symmetric(horizontal: 24),
-            child: Row(
-              children: [
-                Expanded(
-                    child: TextField(
-                      controller: searchController,
-                      decoration: InputDecoration(
-                        filled: true,
-                        border: InputBorder.none,
+
+    return Scaffold(
+      appBar: AppBar(
+        title:   Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Spot",style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 23),),
+              Text("Wallpaper",style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.w600, fontSize: 23),),
+            ],
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+      ),
+
+      body: SingleChildScrollView(
+        child: Container(
+          child: Column(
+            children: [
+              SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                margin: EdgeInsets.symmetric(horizontal: 24),
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        style: TextStyle(color: Colors.black87),
+                        controller: searchController,
+                        decoration: InputDecoration(
+                          hintStyle: TextStyle(color: Colors.grey),
+                          filled: true,
+                          border: InputBorder.none,
                         ),
                       ),
                     ),
-      InkWell(
-        onTap: (){
-          getSearchWallpaper(searchController.text);
-        },
-        child: Container(child: Icon(Icons.search_rounded)),
-
+                    InkWell(
+                      onTap: (){
+                        getSearchWallpaper(searchController.text);
+                      },
+                      child: Container(child: Icon(Icons.search),),
+                     ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              SizedBox(height: 30),
+              wallpaper(photos, context,60),
+            ],
           ),
-          SizedBox(height: 30),
-          wallpaper(photos, context),
-        ],
+        ),
       ),
     );
   }

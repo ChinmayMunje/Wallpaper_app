@@ -1,6 +1,15 @@
+import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_downloader/image_downloader.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart' show PermissionGroup, PermissionHandler, PermissionStatus;
+
 
 class ImageView extends StatefulWidget {
   final String imgPath;
@@ -11,6 +20,10 @@ class ImageView extends StatefulWidget {
 }
 
 class _ImageViewState extends State<ImageView> {
+
+  var progress = "";
+  bool downloading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,74 +51,47 @@ class _ImageViewState extends State<ImageView> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Stack(
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width / 2,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Color(0xff1C1B1B).withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(40),
-                      ),
+                RaisedButton(
+                    onPressed: () async {
+                      if(_checkAndGetPermission != null){
+                      try{
+                        var imgid= await ImageDownloader.downloadImage(widget.imgPath);
+                        print(imgid+"\n\n"+widget.imgPath);
+                        if(imgid == null){
+                          return;
+                        }
+                        var filename = await ImageDownloader.findName(imgid);
+                        print(filename);
+                        Fluttertoast.showToast(
+                            msg: "Image downloaded succesfully..",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0
+                        );
 
 
-                      // alignment: Alignment.center,
-                      // decoration: BoxDecoration(
-                      //   border: Border.all(color: Colors.white24, width: 1),
-                      //   borderRadius: BorderRadius.circular(40),
-                      //   gradient: LinearGradient(
-                      //     colors: [
-                      //       Color(0x36FFFFFF),
-                      //       Color(0x0FFFFFFF),
-                      //     ],
-                      //     begin: FractionalOffset.topLeft,
-                      //     end: FractionalOffset.bottomRight,
-                      //   ),
-                      // ),
-                      //
-                    ),
-                    Container(
-                      width: MediaQuery.of(context).size.width / 2,
-                      height: 50,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white24, width: 1),
-                        borderRadius: BorderRadius.circular(40),
-                        gradient: LinearGradient(
-                          colors: [
-                            Color(0x36FFFFFF),
-                            Color(0x0FFFFFFF),
-                          ],
-                          begin: FractionalOffset.topLeft,
-                          end: FractionalOffset.bottomRight,
-                        ),
-                      ),
+                      }
+                      on PlatformException catch (error){
 
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Set Wallpaper",
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 2),
+                        print(error);
+                      }}
 
-                            Text(
-                              kIsWeb
-                              ? "Image will open in new Tab"
-                                  : "Image saved in gallery",
-                              style: TextStyle(
-                                fontSize: 8, color: Colors.white70,
-                              ),
-                            ),
-                          ],
-                        ),
-                    ),
-                  ],
+
+
+                    },
+                  child: Text("Download"),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0),
+                  ),
+                  color: Colors.grey.withOpacity(0.5),
+                  textColor: Colors.white,
+
                 ),
+
+
                 SizedBox(height: 16),
 
                 InkWell(
@@ -129,3 +115,32 @@ class _ImageViewState extends State<ImageView> {
     );
   }
 }
+ Future<bool> _checkAndGetPermission() async {
+final PermissionStatus permission = await PermissionHandler()
+    .checkPermissionStatus(PermissionGroup.storage);
+if (permission != PermissionStatus.granted) {
+final Map<PermissionGroup, PermissionStatus> permissions =
+await PermissionHandler()
+    .requestPermissions(<PermissionGroup>[PermissionGroup.storage]);
+if (permissions[PermissionGroup.storage] != PermissionStatus.granted) {
+return null;
+}
+}
+return true;
+}
+
+_save() async{
+  var widget;
+  var response = await Dio().get(widget.imgPath, options: Options(responseType: ResponseType.bytes));
+  final result = await ImageGallerySaver.saveImage(Uint8List.fromList(response.data));
+  print(result);
+  BuildContext context;
+  Navigator.pop(context);
+}
+
+
+
+
+
+
+

@@ -32,9 +32,12 @@ class _HomeState extends State<Home> {
         photos.add(photoModel);
       });
       setState(() {
-
+        int dat=photos.length;
+        print("lenght = $dat");
+        print( jsonData.length);
       });
     });
+
 
   }
   @override
@@ -80,12 +83,13 @@ class _HomeState extends State<Home> {
                 ),
                 margin: EdgeInsets.symmetric(horizontal: 24, vertical: 5),
                 padding: EdgeInsets.symmetric(horizontal: 24),
-
+                
                 child: Row(
                   children: [
                     Expanded(
                       child: TextField(
                         controller: searchController,
+                        style: TextStyle(color: Colors.black87),
                         decoration: InputDecoration(
                             hintText: 'search wallpaper',
                             hintStyle: TextStyle(color: Colors.grey),
@@ -105,6 +109,7 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
+
               SizedBox(height: 16),
 
               //Category
@@ -122,7 +127,7 @@ class _HomeState extends State<Home> {
                   }
                 ),
               ),
-              wallpaper(photos, context),
+              wallpaper(photos, context, noOfImages),
             ],
           ),
         ),

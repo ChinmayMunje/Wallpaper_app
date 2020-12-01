@@ -59,12 +59,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
         backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(
-        child: wallpaper(photos, context),
+        child: wallpaper(photos, context,60),
       ),
     );
   }
 }
-Widget wallpaper (List<PhotoModel> listPhoto, BuildContext context) {
+Widget wallpaper (List<PhotoModel> listPhoto, BuildContext context,int length) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 16),
     child: OrientationBuilder(
